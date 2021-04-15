@@ -11,10 +11,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginTop="10dp">
 
         <TextView
-            android:id="@+id/characteristic"
+            android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="24dp"
@@ -25,19 +26,24 @@
             android:id="@+id/uuid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="24dp"
-            android:textStyle="bold"
+            android:textSize="20dp"
             android:text="UUID: "
-            android:textColor="#000"></TextView>
+            android:textColor="#808080"
+            android:layout_marginTop="10dp"></TextView>
 
         <TextView
-            android:id="@+id/properties"
+            android:id="@+id/priority"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="24dp"
-            android:textStyle="bold"
-            android:text="PROPIEDADES: "
-            android:textColor="#000"></TextView>
+            android:textSize="20dp"
+            android:textColor="#808080"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"></TextView>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#000"></View>
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

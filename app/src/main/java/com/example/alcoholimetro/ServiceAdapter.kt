@@ -1,22 +1,32 @@
 package com.example.alcoholimetro
 
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
+import android.text.Html
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ServiceAdapter (var listener: OnItemClickListener) : RecyclerView.Adapter<ServiceAdapter.ViewHolder>() {
 
     private lateinit var serviceList : ArrayList<BluetoothGattService>
+    private lateinit var characteristicList : MutableList<BluetoothGattCharacteristic>
 
 
     inner class ViewHolder (view : View) : RecyclerView.ViewHolder(view), View.OnClickListener{
 
-        val characteristic : TextView = view.findViewById(R.id.characteristic)
-        val uuid : TextView = view.findViewById(R.id.uuid)
-        val properties : TextView = view.findViewById(R.id.properties)
+        val serviceName : TextView = view.findViewById(R.id.name)
+        val serviceUuid : TextView = view.findViewById(R.id.uuid)
+        val servicePriority : TextView = view.findViewById(R.id.priority)
+
+        val characteristicName : TextView = view.findViewById(R.id.name2)
+        val characteristicUuid : TextView = view.findViewById(R.id.uuid2)
+        val characteristicProperties : TextView = view.findViewById(R.id.properties)
 
 
         init {
@@ -39,12 +49,24 @@ class ServiceAdapter (var listener: OnItemClickListener) : RecyclerView.Adapter<
 
     override fun onBindViewHolder(holder: ServiceAdapter.ViewHolder, position: Int) {
         val service = serviceList[position]
-        holder.characteristic.text = service.characteristics.toString()
-        holder.uuid.text = service.uuid.toString()
-        holder.properties.text = service.type.toString()
+        val serviceNameCodeTokens = service.uuid.toString().split('-')
+        val serviceName = serviceNameCodeTokens[0].substringAfter("0000").toUpperCase()
+        when(serviceName){
+            "1800" -> holder.serviceName.text = "Acceso Genérico"
+            "1801" -> holder.serviceName.text = "Atributo Genérico"
+            "180D" -> holder.serviceName.text = "Ritmo cardiaco"
+            "180F" -> holder.serviceName.text = "Servicio de Batería"
+            "181C" -> holder.serviceName.text = "Datos de Usuario"
+            else -> holder.serviceName.text = "Servicio Desconocido"
+        }
+        holder.serviceUuid.append(Html.fromHtml("<b><font color=#000>0x$serviceName</b>"))
+        holder.servicePriority.text = "SERVICIO PRIMARIO"
+        characteristicList = service.characteristics.toMutableList()
+        Log.d(":::", characteristicList.size.toString())
+        characteristicList[position]
     }
 
-    fun setData(serviceList : ArrayList<BluetoothGattService> ) {
+    fun setData(serviceList : ArrayList<BluetoothGattService>) {
         this.serviceList = serviceList
         notifyDataSetChanged()
     }

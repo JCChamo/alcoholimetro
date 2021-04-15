@@ -40,13 +40,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var mLeScanCallback : ScanCallback
     private lateinit var bluetoothManager : BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
-    private lateinit var bluetoothDevice: BluetoothDevice
-    private lateinit var bluetoothGattCallback: BluetoothGattCallback
     private lateinit var scanResult : ScanResult
 
     companion object {
-        lateinit var bluetoothGatt: BluetoothGatt
-        var gattServiceList = arrayListOf<BluetoothGattService>()
+        lateinit var bluetoothDevice: BluetoothDevice
     }
 
 
@@ -74,7 +71,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         bluetoothManager = getSystemService(BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager.adapter
-        bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
 
 
         scanButton.setOnClickListener(this)
@@ -85,13 +81,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         when(v?.id){
             R.id.scanButton ->{
                 if (checkBluetoothConnectivity()) {
+                    bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
                     progressBarAction()
                     searchDevice()
                     connectButton.visibility = View.VISIBLE
                 }
             }
             R.id.connectButton -> {
-                connectDevice()
                 getServices()
             }
         }
@@ -151,42 +147,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 scanner.stopScan(mLeScanCallback)
             }
         }
-    }
-
-    private fun connectDevice(){
-        bluetoothGattCallback = object : BluetoothGattCallback(){
-            override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
-                super.onConnectionStateChange(gatt, status, newState)
-                when {
-                    status == BluetoothGatt.GATT_SUCCESS -> {
-                        Log.d(":::", "Conectado a ${gatt?.device?.name}")
-                        Handler(Looper.getMainLooper()).post{
-                            gatt?.discoverServices()
-                        }
-                    }
-                    newState == BluetoothProfile.STATE_DISCONNECTED -> {
-                        Log.d(":::", "Desconectado de ${gatt?.device?.name}")
-                        gatt?.close()
-                    }
-                    else -> {
-                        Log.d(":::", "Error $status encontrado con ${gatt?.device?.name}. Desconectando...")
-                        gatt?.close()
-                    }
-                }
-
-            }
-            override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
-                super.onServicesDiscovered(gatt, status)
-                Log.d(":::", (gattServiceList.size).toString())
-                gattServiceList.addAll(bluetoothGatt.services)
-                Log.d(":::", (gattServiceList.size).toString())
-                Log.d(":::", bluetoothGatt.toString())
-                Log.d(":::", gattServiceList.toString())
-            }
-        }
-        bluetoothGatt = bluetoothDevice.connectGatt(applicationContext, false, bluetoothGattCallback)
-
-        Toast.makeText(applicationContext, "CONECTADO", Toast.LENGTH_SHORT).show()
     }
 
     private fun getServices() {
