@@ -11,11 +11,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class ServiceAdapter (var listener: OnItemClickListener) : RecyclerView.Adapter<ServiceAdapter.ViewHolder>() {
 
     private lateinit var serviceList : ArrayList<BluetoothGattService>
-    private lateinit var characteristicList : MutableList<BluetoothGattCharacteristic>
+
+    companion object {
+        var listOfCharacteristicMap = arrayListOf<HashMap<Int, MutableList<BluetoothGattCharacteristic>>>()
+    }
 
 
     inner class ViewHolder (view : View) : RecyclerView.ViewHolder(view), View.OnClickListener{
@@ -23,10 +27,6 @@ class ServiceAdapter (var listener: OnItemClickListener) : RecyclerView.Adapter<
         val serviceName : TextView = view.findViewById(R.id.name)
         val serviceUuid : TextView = view.findViewById(R.id.uuid)
         val servicePriority : TextView = view.findViewById(R.id.priority)
-
-        val characteristicName : TextView = view.findViewById(R.id.name2)
-        val characteristicUuid : TextView = view.findViewById(R.id.uuid2)
-        val characteristicProperties : TextView = view.findViewById(R.id.properties)
 
 
         init {
@@ -61,9 +61,12 @@ class ServiceAdapter (var listener: OnItemClickListener) : RecyclerView.Adapter<
         }
         holder.serviceUuid.append(Html.fromHtml("<b><font color=#000>0x$serviceName</b>"))
         holder.servicePriority.text = "SERVICIO PRIMARIO"
-        characteristicList = service.characteristics.toMutableList()
-        Log.d(":::", characteristicList.size.toString())
-        characteristicList[position]
+
+        var characteristicList = mutableListOf<BluetoothGattCharacteristic>()
+        characteristicList = service.characteristics
+        var characteristicMap = hashMapOf<Int, MutableList<BluetoothGattCharacteristic>>()
+        characteristicMap[position] = characteristicList
+        listOfCharacteristicMap.add(characteristicMap)
     }
 
     fun setData(serviceList : ArrayList<BluetoothGattService>) {

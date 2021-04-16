@@ -24,6 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".Services"></activity>
+        <activity android:name=".Characteristics"></activity>
     </application>
 
 </manifest>

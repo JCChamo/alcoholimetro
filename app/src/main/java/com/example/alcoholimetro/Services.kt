@@ -5,11 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.ProgressBar
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,6 +24,7 @@ class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
     private lateinit var context: Context
     private lateinit var listener: ServiceAdapter.OnItemClickListener
     private lateinit var mProgressBar: ProgressBar
+    private lateinit var spinner: Spinner
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,17 +39,19 @@ class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
         recyclerView = findViewById(R.id.recycler)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
+
         mProgressBar.visibility = View.GONE
         progressBarAction()
 
-
         connectDevice()
-
-        var adapter = ArrayAdapter<BluetoothGattCharacteristic>(applicationContext, R.layout.spinner_list, )
 
     }
     override fun onItemClick(position: Int) {
-
+//        var adapter = SpinnerAdapter(context, R.layout.spinner_list, listOfCharacteristicMap[position][position]!!)
+//        spinner.adapter = adapter
+        val intent = Intent(this, Characteristics::class.java)
+        intent.putExtra("position", position)
+        startActivity(intent)
     }
 
     private fun connectDevice(){
@@ -82,8 +84,6 @@ class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
                     serviceAdapter = ServiceAdapter(listener)
                     serviceAdapter.setData(gattServiceList)
 
-                    for (i in 0 until gattServiceList.size)
-                        Log.d(":::", gattServiceList[i].uuid.toString())
                     runOnUiThread {
                         recyclerView.adapter = serviceAdapter
                         recyclerView.setHasFixedSize(true)
