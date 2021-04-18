@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,8 +28,7 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
     }
 
     override fun onItemClick(position: Int) {
-        Toast.makeText(applicationContext, "TOCADA CARACTERÍSTICA", Toast.LENGTH_SHORT).show()
-        connectToWifi()
+        sendMessage()
     }
 
     private fun getCharacteristics(){
@@ -41,15 +38,18 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
         recyclerView.layoutManager = LinearLayoutManager(this)
     }
 
-    private fun connectToWifi() {
+    private fun sendMessage() {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.connect_dialog)
-        var connectButton = dialog.findViewById<Button>(R.id.connectButton)
-        var psswd = dialog.findViewById<EditText>(R.id.psswd)
-        var ssidText = dialog.findViewById<TextView>(R.id.ssid)
-        //psswd.setText(wifiPsswd);
-        connectButton.setOnClickListener(View.OnClickListener {
-            val checkpsswd: String = psswd.getText().toString()
+        var sendButton = dialog.findViewById<Button>(R.id.sendButton)
+        var cancelButton = dialog.findViewById<Button>(R.id.cancelButton)
+        var message = dialog.findViewById<EditText>(R.id.message)
+        sendButton.setOnClickListener(View.OnClickListener {
+            val message = message.text.toString()
+            dialog.dismiss()
+        })
+
+        cancelButton.setOnClickListener(View.OnClickListener {
             dialog.dismiss()
         })
         dialog.show()
