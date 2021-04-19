@@ -19,12 +19,15 @@ class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
     lateinit var serviceAdapter: ServiceAdapter
     private var gattServiceList = arrayListOf<BluetoothGattService>()
     private lateinit var bluetoothDevice : BluetoothDevice
-    private lateinit var bluetoothGatt: BluetoothGatt
     private lateinit var bluetoothGattCallback: BluetoothGattCallback
     private lateinit var context: Context
     private lateinit var listener: ServiceAdapter.OnItemClickListener
     private lateinit var mProgressBar: ProgressBar
     private lateinit var spinner: Spinner
+
+    companion object {
+        lateinit var bluetoothGatt: BluetoothGatt
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -45,7 +45,6 @@ class CharacteristicAdapter (var listener: OnItemClickListener) : RecyclerView.A
 
     override fun onBindViewHolder(holder: CharacteristicAdapter.ViewHolder, position: Int) {
 
-        Log.d(":::", characteristicsList.size.toString())
         holder.characteristicName.text = "Característica Desconocida"
         holder.characteristicUuid.append(Html.fromHtml("<b><font color=#000>0x${characteristicsList[position].uuid.toString().split("-")[0].substringAfter("0000").toUpperCase()}</b>"))
         var property = characteristicsList[position].properties

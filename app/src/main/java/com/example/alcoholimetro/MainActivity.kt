@@ -88,7 +88,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.connectButton -> {
-                getServices()
+                if (name.length() != 0)
+                    getServices()
             }
         }
     }
