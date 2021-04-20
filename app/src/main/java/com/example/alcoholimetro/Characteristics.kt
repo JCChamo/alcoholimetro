@@ -23,6 +23,7 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
     private lateinit var characteristicAdapter: CharacteristicAdapter
     private var listOfCharacteristicMap = ServiceAdapter.listOfCharacteristicMap
     private var pos: Int = 0
+    private var firstValue: Int = 0
     private lateinit var listView : ListView
 
     private lateinit var bluetoothGatt : BluetoothGatt
@@ -116,7 +117,7 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
         }
 
         calibrationButton.setOnClickListener{
-            message2.setText("0")
+            message2.setText("0.0")
             message2.visibility = View.VISIBLE
             message3.visibility = View.VISIBLE
             cal1Button.visibility = View.VISIBLE
@@ -139,7 +140,7 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
             dialog.dismiss()
         }
         cal1Button.setOnClickListener {
-            val firstValue = Integer.parseInt(message2.text.toString()) * 100
+            firstValue = Integer.parseInt(message2.text.toString().split(".")[1])
             val checkSum = 4 + 161 + 1 + firstValue
             characteristic.value = "0202A101${firstValue.toString(16)}${checkSum.toString(16)}0E".decodeHex()
             bluetoothGatt.writeCharacteristic(characteristic)
@@ -147,11 +148,15 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
         }
 
         cal2Button.setOnClickListener{
-            val secondValue = (message3.text.toString()).toLong() * 100
-            val checkSum = 4 + 161 + 1 + (secondValue.toInt())
-            characteristic.value = "0202A101${secondValue.toString(16)}${checkSum.toString(16)}0E".decodeHex()
-            bluetoothGatt.writeCharacteristic(characteristic)
-            Log.d(":::", "Mensaje de calibración 2")
+            val secondValue = Integer.parseInt(message3.text.toString().split(".")[1])
+            if(secondValue <= firstValue)
+                Toast.makeText(applicationContext, "SEGUNDO VALOR INVÁLIDO", Toast.LENGTH_SHORT).show()
+            else {
+                val checkSum = 4 + 161 + 1 + secondValue
+                characteristic.value = "0202A101${secondValue.toString(16)}${checkSum.toString(16)}0E".decodeHex()
+                bluetoothGatt.writeCharacteristic(characteristic)
+                Log.d(":::", "Mensaje de calibración 2")
+            }
         }
         dialog.show()
     }
