@@ -1,4 +1,4 @@
-package com.example.alcoholimetro
+package com.example.alcoholimetro.adapt
 
 import android.bluetooth.BluetoothGattCharacteristic
 import android.content.Context
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import com.example.alcoholimetro.R
 
 class SpinnerAdapter(context: Context, resource: Int, list: MutableList<BluetoothGattCharacteristic>) : ArrayAdapter<BluetoothGattCharacteristic>(context, resource, list), View.OnClickListener {
 

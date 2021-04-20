@@ -3,19 +3,19 @@ package com.example.alcoholimetro
 import android.app.Dialog
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
-import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.alcoholimetro.adapt.ServiceAdapter
+import com.example.alcoholimetro.adapt.CharacteristicAdapter
+
+import java.util.*
 
 class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickListener {
 
@@ -23,19 +23,32 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
     private lateinit var characteristicAdapter: CharacteristicAdapter
     private var listOfCharacteristicMap = ServiceAdapter.listOfCharacteristicMap
     private var pos: Int = 0
+    private lateinit var listView : ListView
+
     private lateinit var bluetoothGatt : BluetoothGatt
-    private lateinit var bluetoothGattCallback: BluetoothGattCallback
     private lateinit var bluetoothDevice: BluetoothDevice
+    private lateinit var readCharacteristic: BluetoothGattCharacteristic
     private lateinit var id : String
     private lateinit var list : MutableList<BluetoothGattCharacteristic>
+
+    companion object {
+        lateinit var messageList : ArrayList<String>
+        lateinit var adapter : ArrayAdapter<String>
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.characteristics)
 
         recyclerView = findViewById(R.id.recycler2)
+        listView = findViewById(R.id.listView)
         bluetoothGatt = Services.bluetoothGatt
         bluetoothDevice = MainActivity.bluetoothDevice
+
+        messageList = arrayListOf()
+        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, messageList)
+        listView.adapter = adapter
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         var pos = this.intent.extras?.get("position") as Int
@@ -46,27 +59,35 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
     }
 
     override fun onItemClick(position: Int) {
-        val id = list[position]?.uuid.toString().split("-")[0].substringAfter("0000").toUpperCase()
-        val writeCharacteristic = list[position]
-        val readCharacteristic = list[position + 1]
-        sendMessage(id, writeCharacteristic)
-//        getMessage(readCharacteristic)
+//        val id = list[position].uuid.toString().split("-")[0].substringAfter("0000").toUpperCase()
+        val writeCharacteristic = list[position] //FFA2
+        readCharacteristic = list[position + 1] //FFA1
+
+        buildDialog(writeCharacteristic)
+//        adapter.notifyDataSetChanged()
     }
+
+
 
     private fun getMessage(characteristic: BluetoothGattCharacteristic) {
-        bluetoothGatt.setCharacteristicNotification(characteristic, true)
-        bluetoothGatt.readCharacteristic(characteristic)
-                Log.d(":::", characteristic.value.toString())
+        val SERVICE_UUID = UUID.fromString("0000ffa0-0000-1000-8000-00805f9b34fb")
+        val CHAR_UUID = UUID.fromString("0000ffa1-0000-1000-8000-00805f9b34fb")
+        val DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+        val char = bluetoothGatt.getService(SERVICE_UUID).getCharacteristic(CHAR_UUID)
+        if (characteristic.properties != 0 && BluetoothGattCharacteristic.PROPERTY_INDICATE != 0) {
+            bluetoothGatt.setCharacteristicNotification(characteristic, true)
+        }
+        if (characteristic.isNotifiable()) {
+            val descriptor = characteristic.getDescriptor(DESCRIPTOR_UUID)
+            descriptor.apply {
+                value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            }
+            bluetoothGatt.writeDescriptor(descriptor)
+            bluetoothGatt.readCharacteristic(characteristic)
+        }
     }
 
-    private fun getCharacteristics(){
-        characteristicAdapter = CharacteristicAdapter(this)
-        recyclerView.adapter = characteristicAdapter
-        recyclerView.setHasFixedSize(true)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-    }
-
-    private fun sendMessage(id : String, characteristic : BluetoothGattCharacteristic) {
+    private fun buildDialog(characteristic : BluetoothGattCharacteristic) {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.connect_dialog)
         var sendButton = dialog.findViewById<Button>(R.id.sendButton)
@@ -82,7 +103,6 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
 
 
         var string = ""
-        var mode = false
 
         acquisitionButton.setOnClickListener{
             x.text = "0x"
@@ -92,7 +112,7 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
             cal2Button.visibility = View.GONE
             string = "02020D81A00E"
             message1.setText(string)
-            mode = false
+            Log.d(":::", "Pulsado adquisición")
         }
 
         calibrationButton.setOnClickListener{
@@ -104,12 +124,15 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
             message3.hint = "0.25"
             string = "02020DA1B00E"
             message1.setText(string)
-            mode = true
+            Log.d(":::", "Pulsado calibración")
         }
         sendButton.setOnClickListener {
             characteristic.value = string.decodeHex()
+
             bluetoothGatt.writeCharacteristic(characteristic)
             Toast.makeText(applicationContext, "MENSAJE ENVIADO", Toast.LENGTH_SHORT).show()
+
+            getMessage(readCharacteristic)
         }
 
         cancelButton.setOnClickListener {
@@ -120,6 +143,7 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
             val checkSum = 4 + 161 + 1 + firstValue
             characteristic.value = "0202A101${firstValue.toString(16)}${checkSum.toString(16)}0E".decodeHex()
             bluetoothGatt.writeCharacteristic(characteristic)
+            Log.d(":::", "Mensaje de calibración 1")
         }
 
         cal2Button.setOnClickListener{
@@ -127,8 +151,16 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
             val checkSum = 4 + 161 + 1 + secondValue
             characteristic.value = "0202A101${secondValue.toString(16)}${checkSum.toString(16)}0E".decodeHex()
             bluetoothGatt.writeCharacteristic(characteristic)
+            Log.d(":::", "Mensaje de calibración 2")
         }
         dialog.show()
+    }
+
+    private fun getCharacteristics(){
+        characteristicAdapter = CharacteristicAdapter(this)
+        recyclerView.adapter = characteristicAdapter
+        recyclerView.setHasFixedSize(true)
+        recyclerView.layoutManager = LinearLayoutManager(this)
     }
 
     private fun String.decodeHex(): ByteArray = chunked(2)
@@ -138,4 +170,11 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
     private fun decimalToHexadecimal(number : Int) : String {
         return number.toString(16).toUpperCase()
     }
+}
+
+fun BluetoothGattCharacteristic.isNotifiable(): Boolean =
+        containsProperty(BluetoothGattCharacteristic.PROPERTY_NOTIFY)
+
+fun BluetoothGattCharacteristic.containsProperty(property: Int): Boolean {
+    return properties and property != 0
 }

@@ -1,17 +1,13 @@
-package com.example.alcoholimetro
+package com.example.alcoholimetro.adapt
 
 import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattService
 import android.text.Html
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
+import com.example.alcoholimetro.R
 
 class CharacteristicAdapter (var listener: OnItemClickListener) : RecyclerView.Adapter<CharacteristicAdapter.ViewHolder>() {
 
@@ -36,14 +32,14 @@ class CharacteristicAdapter (var listener: OnItemClickListener) : RecyclerView.A
         }
 
     }
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacteristicAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.characteristic, parent, false)
         return ViewHolder(view)
     }
 
     override fun getItemCount(): Int = characteristicsList.size
 
-    override fun onBindViewHolder(holder: CharacteristicAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         holder.characteristicName.text = "Característica Desconocida"
         holder.characteristicUuid.append(Html.fromHtml("<b><font color=#000>0x${characteristicsList[position].uuid.toString().split("-")[0].substringAfter("0000").toUpperCase()}</b>"))

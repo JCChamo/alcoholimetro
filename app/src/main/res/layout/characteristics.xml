@@ -14,8 +14,9 @@
         android:layout_height="wrap_content">
     </androidx.recyclerview.widget.RecyclerView>
 
+
     <ListView
-        android:id="@+id/list"
+        android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"></ListView>
 

@@ -1,24 +1,23 @@
 package com.example.alcoholimetro
 
 import android.Manifest
-import android.bluetooth.*
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -120,7 +119,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 super.onScanResult(callbackType, result)
                 if (result?.device?.name == "Eustaquio_H"){
-                    bluetoothDevice = bluetoothAdapter.getRemoteDevice(result?.device?.address)
+                    bluetoothDevice = bluetoothAdapter.getRemoteDevice(result.device?.address)
 //                    for (i in result.scanRecord?.bytes?.indices!!)
 //                        Log.d(":::", String.format("Byte %d: %02X", i, result.scanRecord?.bytes!![i]))
                     name.text = bluetoothDevice.name

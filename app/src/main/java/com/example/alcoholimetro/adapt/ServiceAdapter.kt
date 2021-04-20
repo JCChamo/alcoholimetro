@@ -1,15 +1,14 @@
-package com.example.alcoholimetro
+package com.example.alcoholimetro.adapt
 
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
 import android.text.Html
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import java.util.*
+import com.example.alcoholimetro.R
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
@@ -40,14 +39,14 @@ class ServiceAdapter (var listener: OnItemClickListener) : RecyclerView.Adapter<
         }
 
     }
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServiceAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.service, parent, false)
         return ViewHolder(view)
     }
 
     override fun getItemCount(): Int = serviceList.size
 
-    override fun onBindViewHolder(holder: ServiceAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val service = serviceList[position]
         val serviceNameCodeTokens = service.uuid.toString().split('-')
         val serviceName = serviceNameCodeTokens[0].substringAfter("0000").toUpperCase()

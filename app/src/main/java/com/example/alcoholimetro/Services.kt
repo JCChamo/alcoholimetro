@@ -13,6 +13,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.alcoholimetro.Characteristics.Companion.adapter
+import com.example.alcoholimetro.Characteristics.Companion.messageList
+import com.example.alcoholimetro.adapt.ServiceAdapter
 
 class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
     lateinit var recyclerView : RecyclerView
@@ -82,17 +85,47 @@ class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
                 super.onServicesDiscovered(gatt, status)
                 gattServiceList.addAll(bluetoothGatt.services)
                 if (gattServiceList.isEmpty()){
-                    Log.d(":::", "NO SE HAN DETECTADO SERVICIOS")
+                    Log.d(":::", "No se han detectado servicios")
                 } else {
+                    Log.d(":::", "Se han detectado servicios")
                     serviceAdapter = ServiceAdapter(listener)
                     serviceAdapter.setData(gattServiceList)
-
                     runOnUiThread {
                         recyclerView.adapter = serviceAdapter
                         recyclerView.setHasFixedSize(true)
                         recyclerView.layoutManager = LinearLayoutManager(context)
                         serviceAdapter.notifyDataSetChanged()
                     }
+                }
+            }
+
+            override fun onCharacteristicRead(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
+                super.onCharacteristicRead(gatt, characteristic, status)
+                gatt?.setCharacteristicNotification(characteristic, true)
+                when (status) {
+                    BluetoothGatt.GATT_SUCCESS -> {
+                        Log.d(":::", "On characteristic read")
+                    }
+                    BluetoothGatt.GATT_READ_NOT_PERMITTED -> {
+                        Log.e(":::", "Lectura no permitida")
+                    }
+                    else -> {
+                        Log.e(":::", "Ha fallado On characteristic read, error $status")
+                    }
+                }
+            }
+            override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
+                super.onCharacteristicChanged(gatt, characteristic)
+                Log.d(":::", "On characteristic changed")
+                val bytes = characteristic?.value
+                var string = ""
+                for (i in 0 until 7)
+                    string += String.format("%02X", bytes?.get(i))
+
+                Log.d(":::", string)
+                runOnUiThread{
+                    messageList.add(string)
+                    adapter.notifyDataSetChanged()
                 }
             }
         }
