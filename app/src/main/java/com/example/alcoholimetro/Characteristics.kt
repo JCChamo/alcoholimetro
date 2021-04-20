@@ -147,8 +147,8 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
         }
 
         cal2Button.setOnClickListener{
-            val secondValue = Integer.parseInt(message3.text.toString()) * 100
-            val checkSum = 4 + 161 + 1 + secondValue
+            val secondValue = (message3.text.toString()).toLong() * 100
+            val checkSum = 4 + 161 + 1 + (secondValue.toInt())
             characteristic.value = "0202A101${secondValue.toString(16)}${checkSum.toString(16)}0E".decodeHex()
             bluetoothGatt.writeCharacteristic(characteristic)
             Log.d(":::", "Mensaje de calibración 2")
