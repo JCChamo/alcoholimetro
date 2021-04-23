@@ -8,48 +8,45 @@ import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
-import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.alcoholimetro.Characteristics.Companion.adapter
-import com.example.alcoholimetro.Characteristics.Companion.messageList
 import com.example.alcoholimetro.adapt.ServiceAdapter
 
-class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
+class ServicesOTA : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
     private var actionBar : ActionBar? = null
     lateinit var recyclerView : RecyclerView
     lateinit var serviceAdapter: ServiceAdapter
     private var gattServiceList = arrayListOf<BluetoothGattService>()
     private lateinit var bluetoothDevice : BluetoothDevice
-    private lateinit var bluetoothGattCallback: BluetoothGattCallback
     private lateinit var context: Context
     private lateinit var listener: ServiceAdapter.OnItemClickListener
     private lateinit var mProgressBar: ProgressBar
-    private lateinit var spinner: Spinner
 
     companion object {
         lateinit var bluetoothGatt: BluetoothGatt
+        lateinit var bluetoothGattCallback: BluetoothGattCallback
+
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.services)
+        setContentView(R.layout.services_ota)
 
         context = applicationContext
         listener = this
-        bluetoothDevice = MainActivity.bluetoothDevice
+        bluetoothDevice = MainActivityOTA.bluetoothDevice
+
+        actionBar = supportActionBar
+        MainActivity.Companion.ActionBarStyle.changeActionBarColor(actionBar!!)
 
         mProgressBar = findViewById(R.id.progressbar2)
         recyclerView = findViewById(R.id.recycler)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-
-        actionBar = supportActionBar
-        MainActivity.Companion.ActionBarStyle.changeActionBarColor(actionBar!!)
 
         mProgressBar.visibility = View.GONE
         progressBarAction()
@@ -58,9 +55,7 @@ class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
 
     }
     override fun onItemClick(position: Int) {
-//        var adapter = SpinnerAdapter(context, R.layout.spinner_list, listOfCharacteristicMap[position][position]!!)
-//        spinner.adapter = adapter
-        val intent = Intent(this, Characteristics::class.java)
+        val intent = Intent(this, ChatacteristicsOTA::class.java)
         intent.putExtra("position", position)
         startActivity(intent)
     }
@@ -71,16 +66,16 @@ class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
                 super.onConnectionStateChange(gatt, status, newState)
                 when {
                     status == BluetoothGatt.GATT_SUCCESS -> {
-                        Log.d(":::", "Conectado a ${gatt?.device?.name}")
+                        Log.d(":::", "Conectado a ${gatt?.device?.address}")
                         gatt?.discoverServices()
 
                     }
                     newState == BluetoothProfile.STATE_DISCONNECTED -> {
-                        Log.d(":::", "Desconectado de ${gatt?.device?.name}")
+                        Log.d(":::", "Desconectado de ${gatt?.device?.address}")
                         gatt?.close()
                     }
                     else -> {
-                        Log.d(":::", "Error $status encontrado con ${gatt?.device?.name}. Desconectando...")
+                        Log.d(":::", "Error $status encontrado con ${gatt?.device?.address}. Desconectando...")
                         gatt?.close()
                     }
                 }
@@ -103,39 +98,10 @@ class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
                     }
                 }
             }
-
-            override fun onCharacteristicRead(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
-                super.onCharacteristicRead(gatt, characteristic, status)
-                gatt?.setCharacteristicNotification(characteristic, true)
-                when (status) {
-                    BluetoothGatt.GATT_SUCCESS -> {
-                        Log.d(":::", "On characteristic read")
-                    }
-                    BluetoothGatt.GATT_READ_NOT_PERMITTED -> {
-                        Log.e(":::", "Lectura no permitida")
-                    }
-                    else -> {
-                        Log.e(":::", "Ha fallado On characteristic read, error $status")
-                    }
-                }
-            }
-            override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
-                super.onCharacteristicChanged(gatt, characteristic)
-                Log.d(":::", "On characteristic changed")
-                val bytes = characteristic?.value
-                var string = ""
-                for (i in 0 until 7)
-                    string += String.format("%02X", bytes?.get(i))
-
-                Log.d(":::", string)
-                runOnUiThread{
-                    messageList.add(string)
-                    adapter.notifyDataSetChanged()
-                }
-            }
         }
-        bluetoothGatt = bluetoothDevice.connectGatt(applicationContext, false, bluetoothGattCallback)
-
+        runOnUiThread {
+            bluetoothGatt = bluetoothDevice.connectGatt(applicationContext, false, bluetoothGattCallback)
+        }
         Toast.makeText(applicationContext, "CONECTADO", Toast.LENGTH_SHORT).show()
     }
 

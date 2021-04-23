@@ -25,6 +25,13 @@
         </activity>
         <activity android:name=".Services"></activity>
         <activity android:name=".Characteristics"></activity>
+        <activity android:name=".UploadZip"></activity>
+        <activity android:name=".NotificationActivity"></activity>
+        <activity android:name=".ServicesOTA"></activity>
+        <activity android:name=".ChatacteristicsOTA"></activity>
+        <activity android:name=".MainActivityOTA"></activity>
+
+        <service android:name=".DfuService" android:enabled="true"></service>
     </application>
 
 </manifest>

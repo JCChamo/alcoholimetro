@@ -10,7 +10,6 @@ import android.bluetooth.le.ScanResult
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -18,20 +17,19 @@ import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import no.nordicsemi.android.dfu.DfuServiceInitiator
+import kotlin.system.exitProcess
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivityOTA : AppCompatActivity(), View.OnClickListener {
 
-    var actionBar: ActionBar? = null
     private lateinit var mProgressBar: ProgressBar
-    private lateinit var name: TextView
     private lateinit var mac: TextView
+    private var actionBar : ActionBar? = null
     private lateinit var scanButton: Button
     private lateinit var connectButton: Button
-    private lateinit var otaButton: Button
     val MY_PERMISSIONS_REQUEST_LOCATION = 99
     private val REQUEST_ENABLE_BT = 1
     private lateinit var bluetoothLeScanner: BluetoothLeScanner
@@ -40,6 +38,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var bluetoothManager : BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var scanResult : ScanResult
+
 
     companion object {
         lateinit var bluetoothDevice: BluetoothDevice
@@ -51,27 +50,23 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-
-
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.ota)
 
-        scanButton = findViewById(R.id.scanButton)
-        connectButton = findViewById(R.id.connectButton)
-        otaButton = findViewById(R.id.otaButton)
-        mProgressBar = findViewById(R.id.progressbar)
-        name = findViewById(R.id.name)
         mac = findViewById(R.id.mac)
+        scanButton = findViewById(R.id.scanButton)
+        connectButton = findViewById(R.id.connectButton2)
+        mProgressBar = findViewById(R.id.progressbar)
 
         ActivityCompat.requestPermissions(
-            this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-            MY_PERMISSIONS_REQUEST_LOCATION
+                this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                MY_PERMISSIONS_REQUEST_LOCATION
         )
 
         actionBar = supportActionBar
         ActionBarStyle.changeActionBarColor(actionBar!!)
+
         mProgressBar.visibility = View.GONE
 
         bluetoothManager = getSystemService(BluetoothManager::class.java)
@@ -80,29 +75,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         scanButton.setOnClickListener(this)
         connectButton.setOnClickListener(this)
-        otaButton.setOnClickListener(this)
-    }
-
-    override fun onClick(v: View?) {
-        when(v?.id){
-            R.id.scanButton ->{
-                if (checkBluetoothConnectivity()) {
-                    bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
-                    progressBarAction()
-                    searchDevice()
-                    connectButton.visibility = View.VISIBLE
-                }
-            }
-            R.id.connectButton -> {
-                if (name.length() != 0)
-                    getServices()
-            }
-
-            R.id.otaButton -> {
-                val intent = Intent(this, MainActivityOTA::class.java)
-                startActivity(intent)
-            }
-        }
     }
 
     private fun checkBluetoothConnectivity() : Boolean {
@@ -130,14 +102,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 super.onScanResult(callbackType, result)
-                if (result?.device?.name == "Eustaquio_H"){
+//                Log.d(":::", result?.device?.address.toString())
+                if (result?.device?.address == "DE:CB:8C:F0:88:E4"){
                     bluetoothDevice = bluetoothAdapter.getRemoteDevice(result.device?.address)
-//                    for (i in result.scanRecord?.bytes?.indices!!)
-//                        Log.d(":::", String.format("Byte %d: %02X", i, result.scanRecord?.bytes!![i]))
-                    name.text = bluetoothDevice.name
+
                     mac.text = bluetoothDevice.address
 
                     scanResult = result
+
+                    Log.d(":::", "Dispositivo bluetooth inicializado")
                 }
             }
         }
@@ -146,7 +119,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun scanLeDevice() {
         val SCAN_PERIOD = 2000L
-        bluetoothLeScanner?.let { scanner ->
+        bluetoothLeScanner.let { scanner ->
             if (!scanning) {
                 Handler().postDelayed({
                     scanning = false
@@ -161,9 +134,25 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun getServices() {
-        val intent = Intent(this, Services::class.java)
-        startActivity(intent)
+    override fun onClick(v: View?) {
+        when(v?.id){
+            R.id.scanButton ->{
+                if (checkBluetoothConnectivity()) {
+                    bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
+                    progressBarAction()
+                    searchDevice()
+                    Handler().postDelayed({connectButton.visibility = View.VISIBLE }, 2000)
+                }
+            }
+            R.id.connectButton -> {
+                if (mac.length() != 0)
+                    getServices()
+            }
+        }
     }
 
+    private fun getServices() {
+        val intent = Intent(this, ServicesOTA::class.java)
+        startActivity(intent)
+    }
 }

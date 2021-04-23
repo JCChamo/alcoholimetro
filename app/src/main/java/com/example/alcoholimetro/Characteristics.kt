@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,10 +20,10 @@ import java.util.*
 
 class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickListener {
 
+    private var actionBar : ActionBar? = null
     private lateinit var recyclerView : RecyclerView
     private lateinit var characteristicAdapter: CharacteristicAdapter
     private var listOfCharacteristicMap = ServiceAdapter.listOfCharacteristicMap
-    private var pos: Int = 0
     private var firstValue: Int = 0
     private lateinit var listView : ListView
 
@@ -50,6 +51,9 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
         messageList = arrayListOf()
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, messageList)
         listView.adapter = adapter
+
+        actionBar = supportActionBar
+        MainActivity.Companion.ActionBarStyle.changeActionBarColor(actionBar!!)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         var pos = this.intent.extras?.get("position") as Int
@@ -103,7 +107,7 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
         var message3 = dialog.findViewById<EditText>(R.id.message3)
 
 
-        var string = ""
+        var string = "00"
 
         acquisitionButton.setOnClickListener{
             x.text = "0x"
