@@ -12,9 +12,8 @@ import com.example.alcoholimetro.R
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-class ServiceAdapter (var listener: OnItemClickListener) : RecyclerView.Adapter<ServiceAdapter.ViewHolder>() {
+class ServiceAdapter (var listener: OnItemClickListener, private var serviceList : ArrayList<BluetoothGattService>) : RecyclerView.Adapter<ServiceAdapter.ViewHolder>() {
 
-    private lateinit var serviceList : ArrayList<BluetoothGattService>
 
     companion object {
         var listOfCharacteristicMap = arrayListOf<HashMap<Int, MutableList<BluetoothGattCharacteristic>>>()
@@ -56,6 +55,7 @@ class ServiceAdapter (var listener: OnItemClickListener) : RecyclerView.Adapter<
             "180D" -> holder.serviceName.text = "Ritmo cardiaco"
             "180F" -> holder.serviceName.text = "Servicio de Batería"
             "181C" -> holder.serviceName.text = "Datos de Usuario"
+            "FE59" -> holder.serviceName.text = "Servicio seguro DFU"
             else -> holder.serviceName.text = "Servicio Desconocido"
         }
         holder.serviceUuid.append(Html.fromHtml("<b><font color=#000>0x$serviceName</b>"))
@@ -73,7 +73,7 @@ class ServiceAdapter (var listener: OnItemClickListener) : RecyclerView.Adapter<
         notifyDataSetChanged()
     }
 
-    interface OnItemClickListener{
+    interface OnItemClickListener {
         fun onItemClick(position: Int)
     }
 

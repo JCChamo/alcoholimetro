@@ -18,7 +18,6 @@ import com.example.alcoholimetro.adapt.ServiceAdapter
 class ServicesOTA : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
     private var actionBar : ActionBar? = null
     lateinit var recyclerView : RecyclerView
-    lateinit var serviceAdapter: ServiceAdapter
     private var gattServiceList = arrayListOf<BluetoothGattService>()
     private lateinit var bluetoothDevice : BluetoothDevice
     private lateinit var context: Context
@@ -28,7 +27,7 @@ class ServicesOTA : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
     companion object {
         lateinit var bluetoothGatt: BluetoothGatt
         lateinit var bluetoothGattCallback: BluetoothGattCallback
-
+        lateinit var serviceAdapter: ServiceAdapter
     }
 
 
@@ -44,7 +43,7 @@ class ServicesOTA : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
         MainActivity.Companion.ActionBarStyle.changeActionBarColor(actionBar!!)
 
         mProgressBar = findViewById(R.id.progressbar2)
-        recyclerView = findViewById(R.id.recycler)
+        recyclerView = findViewById(R.id.recycler2)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
 
@@ -68,7 +67,6 @@ class ServicesOTA : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
                     status == BluetoothGatt.GATT_SUCCESS -> {
                         Log.d(":::", "Conectado a ${gatt?.device?.address}")
                         gatt?.discoverServices()
-
                     }
                     newState == BluetoothProfile.STATE_DISCONNECTED -> {
                         Log.d(":::", "Desconectado de ${gatt?.device?.address}")
@@ -88,7 +86,7 @@ class ServicesOTA : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
                     Log.d(":::", "No se han detectado servicios")
                 } else {
                     Log.d(":::", "Se han detectado servicios")
-                    serviceAdapter = ServiceAdapter(listener)
+                    serviceAdapter = ServiceAdapter(listener, gattServiceList)
                     serviceAdapter.setData(gattServiceList)
                     runOnUiThread {
                         recyclerView.adapter = serviceAdapter

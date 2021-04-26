@@ -30,8 +30,6 @@ class UploadZip : AppCompatActivity(), View.OnClickListener {
     private lateinit var progressBar : ProgressBar
     private lateinit var exploreButton : Button
     private lateinit var updateButton : Button
-    private lateinit var restoreButton : Button
-    private lateinit var connectButton : Button
     private lateinit var textPercentage : TextView
     private lateinit var zipName : TextView
     private var uri : Uri? = null
@@ -71,8 +69,6 @@ class UploadZip : AppCompatActivity(), View.OnClickListener {
             textPercentage.setText(R.string.dfu_status_disconnecting)
             Log.d(":::", "Desconectando dispositivo")
             Toast.makeText(applicationContext, "PROCESO TERMINADO", Toast.LENGTH_SHORT).show()
-            restoreButton.visibility = View.VISIBLE
-            connectButton.visibility = View.VISIBLE
         }
 
         override fun onDfuCompleted(deviceAddress: String) {
@@ -125,6 +121,7 @@ class UploadZip : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.upload_zip)
 
         progressBar = findViewById(R.id.dfuProgressBar)
+        updateButton = findViewById(R.id.updateButton)
         exploreButton = findViewById(R.id.exploreButton)
         updateButton = findViewById(R.id.updateButton)
         textPercentage = findViewById(R.id.textPercentage)
@@ -135,8 +132,6 @@ class UploadZip : AppCompatActivity(), View.OnClickListener {
 
         exploreButton.setOnClickListener(this)
         updateButton.setOnClickListener(this)
-        restoreButton.setOnClickListener(this)
-        connectButton.setOnClickListener(this)
     }
 
     override fun onDestroy() {
@@ -172,7 +167,7 @@ class UploadZip : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun initializeDFU() {
-            initiator = DfuServiceInitiator(bluetoothDevice.address)
+            initiator = DfuServiceInitiator(MainActivityOTA.bluetoothDevice.address)
                     .setKeepBond(true)
                     .setDisableNotification(true)
                     .setForeground(false)

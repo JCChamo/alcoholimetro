@@ -73,7 +73,6 @@ class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
                     status == BluetoothGatt.GATT_SUCCESS -> {
                         Log.d(":::", "Conectado a ${gatt?.device?.name}")
                         gatt?.discoverServices()
-
                     }
                     newState == BluetoothProfile.STATE_DISCONNECTED -> {
                         Log.d(":::", "Desconectado de ${gatt?.device?.name}")
@@ -93,7 +92,7 @@ class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
                     Log.d(":::", "No se han detectado servicios")
                 } else {
                     Log.d(":::", "Se han detectado servicios")
-                    serviceAdapter = ServiceAdapter(listener)
+                    serviceAdapter = ServiceAdapter(listener, gattServiceList)
                     serviceAdapter.setData(gattServiceList)
                     runOnUiThread {
                         recyclerView.adapter = serviceAdapter
@@ -108,15 +107,11 @@ class Services : AppCompatActivity(), ServiceAdapter.OnItemClickListener{
                 super.onCharacteristicRead(gatt, characteristic, status)
                 gatt?.setCharacteristicNotification(characteristic, true)
                 when (status) {
-                    BluetoothGatt.GATT_SUCCESS -> {
-                        Log.d(":::", "On characteristic read")
-                    }
-                    BluetoothGatt.GATT_READ_NOT_PERMITTED -> {
-                        Log.e(":::", "Lectura no permitida")
-                    }
-                    else -> {
-                        Log.e(":::", "Ha fallado On characteristic read, error $status")
-                    }
+                    BluetoothGatt.GATT_SUCCESS -> Log.d(":::", "On characteristic read")
+
+                    BluetoothGatt.GATT_READ_NOT_PERMITTED -> Log.e(":::", "Lectura no permitida")
+
+                    else -> Log.e(":::", "Ha fallado On characteristic read, error $status")
                 }
             }
             override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {

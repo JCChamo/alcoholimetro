@@ -43,7 +43,7 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
         super.onCreate(savedInstanceState)
         setContentView(R.layout.characteristics)
 
-        recyclerView = findViewById(R.id.recycler2)
+        recyclerView = findViewById(R.id.recycler3)
         listView = findViewById(R.id.listView)
         bluetoothGatt = Services.bluetoothGatt
         bluetoothDevice = MainActivity.bluetoothDevice
@@ -57,6 +57,7 @@ class Characteristics : AppCompatActivity(), CharacteristicAdapter.OnItemClickLi
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         var pos = this.intent.extras?.get("position") as Int
+        Log.d(":::NORMAL", pos.toString())
         getCharacteristics()
         list = listOfCharacteristicMap[pos][pos]!!
         characteristicAdapter.setData(list)

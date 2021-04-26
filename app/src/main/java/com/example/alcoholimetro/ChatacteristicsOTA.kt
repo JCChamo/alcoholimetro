@@ -5,12 +5,14 @@ import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.alcoholimetro.ServicesOTA.Companion.serviceAdapter
 import com.example.alcoholimetro.adapt.CharacteristicAdapter
 import com.example.alcoholimetro.adapt.ServiceAdapter
 import java.util.*
@@ -37,8 +39,8 @@ class ChatacteristicsOTA : AppCompatActivity(), CharacteristicAdapter.OnItemClic
         super.onCreate(savedInstanceState)
         setContentView(R.layout.characteristics_ota)
 
-        recyclerView = findViewById(R.id.recycler2)
-        listView = findViewById(R.id.listView)
+        recyclerView = findViewById(R.id.recycler4)
+        listView = findViewById(R.id.listView2)
         bluetoothGatt = ServicesOTA.bluetoothGatt
 
         actionBar = supportActionBar
@@ -50,14 +52,17 @@ class ChatacteristicsOTA : AppCompatActivity(), CharacteristicAdapter.OnItemClic
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         var pos = this.intent.extras?.get("position") as Int
+        Log.d(":::OTA", pos.toString())
         getCharacteristics()
         list = listOfCharacteristicMap[pos][pos]!!
         characteristicAdapter.setData(list)
+
     }
 
 
     override fun onItemClick(position: Int) {
         val characteristic = list[position]
+        Log.d(":::CHAROTA", position.toString())
 
         if(characteristic.properties == 4){
             val intent = Intent(this, UploadZip::class.java)

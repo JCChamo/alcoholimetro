@@ -54,7 +54,7 @@ class MainActivityOTA : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.ota)
 
-        mac = findViewById(R.id.mac)
+        mac = findViewById(R.id.mac2)
         scanButton = findViewById(R.id.scanButton)
         connectButton = findViewById(R.id.connectButton2)
         mProgressBar = findViewById(R.id.progressbar)
@@ -144,7 +144,7 @@ class MainActivityOTA : AppCompatActivity(), View.OnClickListener {
                     Handler().postDelayed({connectButton.visibility = View.VISIBLE }, 2000)
                 }
             }
-            R.id.connectButton -> {
+            R.id.connectButton2 -> {
                 if (mac.length() != 0)
                     getServices()
             }

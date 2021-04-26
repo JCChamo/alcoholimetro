@@ -48,7 +48,7 @@
         android:paddingTop="40dp"></TextView>
 
     <TextView
-        android:id="@+id/mac"
+        android:id="@+id/mac2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"

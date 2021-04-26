@@ -2,6 +2,7 @@ package com.example.alcoholimetro.adapt
 
 import android.bluetooth.BluetoothGattCharacteristic
 import android.text.Html
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,24 +41,33 @@ class CharacteristicAdapter (var listener: OnItemClickListener) : RecyclerView.A
     override fun getItemCount(): Int = characteristicsList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
         holder.characteristicName.text = "Característica Desconocida"
         holder.characteristicUuid.append(Html.fromHtml("<b><font color=#000>0x${characteristicsList[position].uuid.toString().split("-")[0].substringAfter("0000").toUpperCase()}</b>"))
         var property = characteristicsList[position].properties
         when(property) {
-              2 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>READ</b>"))
-              10 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>READ, WRITE</b>"))
-              12 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>WRITE, WRITE NO RESPONSE</b>"))
-              16 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>NOTIFY</b>"))
-              18 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>NOTIFY, READ</b>"))
-              26 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>NOTIFY, READ, WRITE</b>"))
-              32 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>INDICATE</b>"))
+            2 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>READ</b>"))
+            4 -> {
+                holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>WRITE NO RESPONSE</b>"))
+                holder.characteristicName.text = "DFU Packet"
+            }
+            10 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>READ, WRITE</b>"))
+            12 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>WRITE, WRITE NO RESPONSE</b>"))
+            16 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>NOTIFY</b>"))
+            18 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>NOTIFY, READ</b>"))
+            24 -> {
+                holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>NOTIFY, WRITE</b>"))
+                holder.characteristicName.text = "DFU Control Point"
+            }
+            26 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>NOTIFY, READ, WRITE</b>"))
+            32 -> holder.characteristicProperties.append(Html.fromHtml("<b><font color=#000>INDICATE</b>"))
         }
     }
 
     fun setData(characteristicsList : MutableList<BluetoothGattCharacteristic>) {
         this.characteristicsList = characteristicsList
         notifyDataSetChanged()
+        if (itemCount > 0)
+            Log.d(":::", "Se han detectado características")
     }
 
     interface OnItemClickListener{
